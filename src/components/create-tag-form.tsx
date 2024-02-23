@@ -10,7 +10,7 @@ const createTagSchema = z.object({
   title: z.string().min(3, { message: 'Minimum 3 characters.' }),
 })
 
-type CreateTagSchema = z.infer<typeof createTagSchema>
+type CreateTagSchema = z.infer<typeof createTagSchema>// isso é Inferencia: criar uma tipagem a partir de uma variavel existente
 
 function getSlugFromString(input: string): string {
   return  input
@@ -32,6 +32,7 @@ export function CreateTagForm() {
     ? getSlugFromString(watch('title')) 
     : ''
 
+  //o useMutation foi usado para que ao submeter a nova tag esta seja atualizada no cache e portanto atualizada na lista sem precisar de refresh
   const { mutateAsync } = useMutation({
     mutationFn: async ({ title }: CreateTagSchema) => {
       // delay 2s
@@ -49,9 +50,9 @@ export function CreateTagForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['get-tags'],
-      })
-    }
-  })
+      })//Acessa a listagem que pode ser acessada globalmente por causa da queryKey usada quando foi feita a requisiçao dos dados da listagem
+    }//Ao usar o invalidateQueries queremos dizer que os dados retornados de uma query nao sao mais validos,e portanto se nao é mais válido ele vai atualizar sozinho
+  })//Passamos depois a queryKey que queremos atualizar, não passamos os outros campos da queryKey(urlfilter e page),pq não passando esses campos a ação dele sera invalidar todas as queries de todas as paginas e de todos os filtros,tudo que começar com a queryKey 'get-tags'
 
   async function createTag({ title }: CreateTagSchema) {
     await mutateAsync({ title })
@@ -77,7 +78,7 @@ export function CreateTagForm() {
         <input 
           id="slug" 
           type="text" 
-          readOnly 
+          readOnly // não permite escrever no input
           value={slug}
           className="border border-zinc-800 rounded-lg px-3 py-2 bg-zinc-800/50 w-full text-sm"
         />
