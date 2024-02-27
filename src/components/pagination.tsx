@@ -3,72 +3,106 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { useSearchParams } from 'react-router-dom'
-import { Button } from './ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
+import { useSearchParams } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "./ui/select";
+import { Tag } from "../app";
+import { useEffect } from "react";
 
 interface PaginationProps {
-  pages: number
-  items: number
-  page: number
+  pages: number;
+  items: number;
+  page: number;
+  itemsPerPage: Tag[];
 }
 
 //Utilização de url State atraves do react-router-dom,para lidar com paginação
 //useSearchParams são parametros que alteram a url de uma pagina
 
-export function Pagination({ items, page, pages }: PaginationProps) {
-  const [, setSearchParams] = useSearchParams()
+export function Pagination({
+  items,
+  page,
+  pages,
+  itemsPerPage,
+}: PaginationProps) {
+  const [, setSearchParams] = useSearchParams();
+
+  console.log(itemsPerPage.length);
+  const isPageGreaterThanPages = page > pages ? pages : page;
+
+  useEffect(() => {
+    setSearchParams((params) => {
+      params.set("page", String(isPageGreaterThanPages));
+
+      return params;
+    });
+  }, [isPageGreaterThanPages, pages, setSearchParams]);
 
   function firstPage() {
-    setSearchParams(params => {
-      params.set('page', '1')
+    setSearchParams((params) => {
+      params.set("page", "1");
 
-      return params
-    })
+      return params;
+    });
+  }
+
+  function handleNumberOfRows(e: string) {
+    const rows = e;
+
+    setSearchParams((params) => {
+      params.set("per_page", rows);
+
+      return params;
+    });
   }
 
   function previousPage() {
     if (page - 1 <= 0) {
-      return
+      return;
     }
 
-    setSearchParams(params => {
-      params.set('page', String(page - 1))
+    setSearchParams((params) => {
+      params.set("page", String(page - 1));
 
-      return params
-    })
+      return params;
+    });
   }
 
   function nextPage() {
     if (page + 1 > pages) {
-      return
+      return;
     }
 
-    setSearchParams(params => {
-      params.set('page', String(page + 1))
+    setSearchParams((params) => {
+      params.set("page", String(page + 1));
 
-      return params
-    })
+      return params;
+    });
   }
 
   function lastPage() {
-    setSearchParams(params => {
-      params.set('page', String(pages))
+    setSearchParams((params) => {
+      params.set("page", String(pages));
 
-      return params
-    })
+      return params;
+    });
   }
 
   return (
     <div className="flex text-sm items-center justify-between text-zinc-500">
-      <span>Showing 10 of {items} items</span>
+      <span>
+        Showing {itemsPerPage.length} of {items} items
+      </span>
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2">
           <span>Rows per page</span>
 
-          <Select defaultValue="10">
+          <Select
+            defaultValue={String(itemsPerPage)}
+            onValueChange={handleNumberOfRows}
+          >
             <SelectTrigger aria-label="Page" />
             <SelectContent>
               <SelectItem value="10">10</SelectItem>
@@ -78,7 +112,9 @@ export function Pagination({ items, page, pages }: PaginationProps) {
           </Select>
         </div>
 
-        <span>Page {page} of {pages}</span>
+        <span>
+          Page {isPageGreaterThanPages} of {pages}
+        </span>
 
         <div className="space-x-1.5">
           <Button onClick={firstPage} size="icon" disabled={page - 1 <= 0}>
@@ -100,5 +136,5 @@ export function Pagination({ items, page, pages }: PaginationProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
